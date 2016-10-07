@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Users</title>
+</head>
+<body>
+	<h2>Here are all the users:</h2>
+	<%= users %>
+	<% for (var x in users) { %>
+		<h3>Name: <%= users[x].name %></h3>
+		<h3>Email: <%= users[x].email %></h3>
+	<% } %>
+</body>
+</html>
