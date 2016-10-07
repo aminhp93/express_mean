@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Index Page</title>
+	<!-- <script type="text/javascript" src="jquery/dist/jquery.js"></script> -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var socket = io.connect();
+
+			$('form').submit(function(e){
+				e.preventDefault();
+				socket.emit('random_number', {
+					name: $('#name').val(),
+					location: $('#location').val(),
+					language: $('#language').val(),
+					comment: $('#comment').val()
+				});
+			})
+			
+			socket.on('update_message', function(data){
+				$('#message').html("You emitted the following information to the server " + JSON.stringify(data.response));
+			})
+
+			socket.on('update_number', function(data){
+				$('#number').html('Your lucky number is ' + JSON.stringify(data.response));
+			})
+		})
+	</script>
+</head>
+<body>
+	<div id="message"></div>
+	<div id="number"></div>
+	<form>
+		<div>Fullname: <input id="name" type="text" name="name"></div>
+		<div>Location: <input id="location" type="text" name="location"></div>
+		<div>Language: <input id="language" type="text" name="language"></div>
+		<div>Comments: <input id="comment" type="text" name="comment"></div>
+		<input type="submit">
+	</form>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Epic Button Game</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var socket = io.connect();
+
+			$('#add').click(function(e){
+				e.preventDefault();
+				socket.emit('number_of_user', {message: 'Hello' });
+			})
+
+			$('#reset').click(function(e){
+				e.preventDefault();
+				socket.emit('reset', {message: 'reset'});
+			})
+			
+			socket.on('update_number', function(data){
+				$('#result').html('The button has been pushed ' + JSON.stringify(data.response) + ' time(s)');
+			})
+
+			socket.on('reset_number', function(data){
+				$('#result').html('The button has not been clicked yet');
+			})
+
+
+		})
+	</script>
+
+</head>
+<body>
+	<div id="result"></div>
+	<button id="add">Epic Button</button>
+	<button id="reset">Reset</button>
+
+</body>
+</html>
