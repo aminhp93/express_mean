@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Group Chat Page</title>
+	<title>Index</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript" src="socket.io/socket.io.js"></script>
 	<script type="text/javascript">
@@ -10,43 +10,46 @@
 			var current_user;
 
 			var start = function(){
-				var name = prompt("What is your name?");
-				socket.emit('check_user', {user: name});
-				return name;
+				var name = prompt("Enter your name");
+				socket.emit("check_user", {user: name});
 			}
 			start();
 
-			socket.on('error_message', function(data){
+			socket.on('existing_user', function(data){
+				$('#error').html(data.error);
 				start();
-			})
-
-			socket.on('load_messages', function(data){
-				current_user = data.current_user;
-				output = "";
-				for (var i=0; i < data.message.length; i++){
-					output += '<div>' + data.message[i].name + ": " + data.message[i].message + '</div>'
-				}
-				$('#result').append(output);
-			})
-
-			$('#input_message').submit(function(e){
-				e.preventDefault();
-				socket.emit('create_message', {user: current_user, message: $('#message').val()});
 			});
 
-			socket.on('response_message', function(data){
-				// console.log(data.response);
-				$('#result').append('<div>' + data.response.user + ': ' + data.response.message + '</div>');
+			socket.on('load_messages', function(data){
+				current_user = data.response.user;
+				output = '';
+				for (var i = 0; i < data.response.length; i++){
+					output += "<div>" + data.response[i].user + ": " + data.response[i].message + "</div>";
+				}
+				$("#results").html(output);
 			})
+
+			$('form').submit(function(e){
+				e.preventDefault();
+				socket.emit('add_message', {user: current_user, message: $('#message').val()})
+			})
+
+			socket.on('response_add_message', function(data){
+				console.log(data);
+				$('#results').append('<div>' + data.response.user + ": " + data.response.message + "</div>");
+			})
+
+
 		})
 	</script>
 </head>
 <body>
-	<h2>Conversation Board</h2>
-	<div id="result"></div>
-	<form id="input_message">
-		<input id="message" type="text" name="message" placeholder="enter your message here">
-		<input type="submit" value="Send">
-	</form>	
+	<div id="error"></div>
+	<div>Conversation Board</div>
+	<div id="results"></div>
+	<form>
+		<input type="text" name="message" id="message">
+		<input type="submit">
+	</form>
 </body>
 </html>

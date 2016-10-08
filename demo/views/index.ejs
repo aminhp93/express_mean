@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Index</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="text/javascript" src="socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var socket = io.connect();
+			var current_user;
+
+			socket.emit('page_load');
+
+			socket.on('get_user_name', function(data){
+				var name = prompt("Enter your name");
+				socket.emit("new_user", {user: name});
+			})
+				
+			socket.on('existing_user', function(data){
+				start();
+			});
+
+			socket.on('load_messages', function(data){
+				current_user = data.response.user;
+				output = '';
+				for (var i = 0; i < data.response.length; i++){
+					output += "<div>" + data.response[i].user + ": " + data.response[i].message + "</div>";
+				}
+				$("#results").html(output);
+			})
+
+			$('form').submit(function(e){
+				e.preventDefault();
+				socket.emit('add_message', {message: $('#message').val()})
+			})
+
+			socket.on('response_add_message', function(data){
+				$('#results').append('<div>' + data.user + ": " + data.message + "</div>");
+			})
+
+
+		})
+	</script>
+</head>
+<body>
+	<div>Conversation Board</div>
+	<div id="results"></div>
+	<form>
+		<input type="text" name="message" id="message">
+		<input type="submit">
+	</form>
+</body>
+</html>

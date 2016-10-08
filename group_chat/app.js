@@ -1,15 +1,12 @@
 var express = require('express');
 var app = express();
-var bodyParser = require('body-parser');
 var path = require('path');
-// var session = require('express-session');
+var bodyParser = require('body-parser');
 
-
-app.use(express.static(path.join(__dirname, "./static")));
+app.use(express.static(path.join(__dirname, './static')));
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(session({secret: 'codingdojorocks'}));
 
-app.set('views', path.join(__dirname, "./views"));
+app.set('views', path.join(__dirname, './views'));
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response){
@@ -17,39 +14,34 @@ app.get('/', function(request, response){
 })
 
 var server = app.listen(3000, function(){
-	console.log("Listening on port 3000");
+	console.log("listening on port 3000");
 })
 
 var users = [];
 var messages = [];
 
-var io = require('socket.io').listen(server);
+var io = require("socket.io").listen(server);
 
-io.sockets.on('connection', function(socket){
+io.sockets.on("connection", function(socket){
 	socket.on('check_user', function(data){
-		if (is_user(data.user) === true){
-			socket.emit("error_message");
+		if (is_user(data.user) == true){
+			socket.emit('existing_user', {error: "this name has been used"});
 		} else {
 			users.push(data.user);
-			console.log('amin');
-			console.log(messages);
-			socket.emit('load_messages', {current_user: data.user, message: messages});
-		}		
+			socket.emit('load_messages', {response: {user: data.user, message: messages}});		
+		}
 	})
-
-	socket.on('create_message', function(data){
-		messages.push({name: data.user, message: data.message})
-		// console.log(messages);
-		io.emit('response_message', {response: data});
+	socket.on('add_message', function(data){
+		messages.push(data);
+		io.emit("response_add_message", {response: data});
 	})
 })
 
-
 function is_user(user){
-	for (var i = 0; i < users.length; i++){
+	for (var i=0; i < users.length; i++){
 		if (user == users[i]){
-			return true;
+			return true
 		}
 	}
-	return false;
+	return false
 }
